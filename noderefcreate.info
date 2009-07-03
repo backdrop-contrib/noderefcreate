@@ -1,0 +1,3 @@
+name = noderefcreate
+description = create a node when the reference doesnt exist
+core = 6.x
