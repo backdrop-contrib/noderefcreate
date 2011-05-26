@@ -128,7 +128,7 @@ function noderefcreate_autocomplete_validate($element, &$form_state, $form) {
         $newnode->uid = $user->uid;
         $newnode->title = $value;
         if (module_exists('comment')) {
-          $newnode->comment = variable_get("comment_$node->type", COMMENT_NODE_OPEN);
+          $newnode->comment = variable_get("comment_$newnode->type", COMMENT_NODE_OPEN);
         }
         node_save($newnode);
         $nid = $newnode->nid;
