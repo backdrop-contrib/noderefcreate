@@ -64,7 +64,10 @@ function noderefcreate_field_widget_form(&$form, &$form_state, $field, $instance
       $element += array(
         '#type' => 'textfield',
         '#default_value' => isset($items[$delta]['nid']) ? $items[$delta]['nid'] : NULL,
-        '#autocomplete_path' => $instance['widget']['settings']['autocomplete_path'] . '/' . $instance['entity_type'] . '/' . $field['field_name'],
+        '#autocomplete_path' => $instance['widget']['settings']['autocomplete_path'] .
+          '/' . $instance['entity_type'] .
+          '/' . $instance['bundle'] .
+          '/' . $field['field_name'],
         '#size' => $instance['widget']['settings']['size'],
         '#element_validate' => array('noderefcreate_autocomplete_validate'),
         '#value_callback' => 'node_reference_autocomplete_value',
@@ -109,7 +112,13 @@ function noderefcreate_autocomplete_validate($element, &$form_state, $form) {
     else {
       // No explicit nid (the submitted value was not populated by autocomplete
       // selection). Get the nid of a referencable node from the entered title.
-      $reference = _node_reference_potential_references($field, $value, 'equals', NULL, 1);
+      $options = array(
+        'string' => $value,
+        'match' => 'equals',
+        'ids' => NULL,
+        'limit' => 1,
+      );
+      $reference = node_reference_potential_references($field, $options);
       if ($reference) {
         // @todo The best thing would be to present the user with an
         // additional form, allowing the user to choose between valid
