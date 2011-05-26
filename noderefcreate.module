@@ -91,7 +91,7 @@ function noderefcreate_autocomplete_validate($element, &$form_state, $form) {
   $value = $element['#value'];
   $nid = NULL;
 
-  if (!empty($value)) {
+  if (strlen(trim($value)) > 0) {
     // Check whether we have an explicit "[nid:n]" input.
     preg_match('/^(?:\s*|(.*) )?\[\s*nid\s*:\s*(\d+)\s*\]$/', $value, $matches);
     if (!empty($matches)) {
@@ -142,6 +142,11 @@ function noderefcreate_autocomplete_validate($element, &$form_state, $form) {
         node_save($newnode);
         $nid = $newnode->nid;
       }
+    }
+  } else {
+    if (strlen($value) > 0) {
+      // if we got here then the user filled the name with spaces
+      form_error($element, t('%name: title is empty. Please check your input.', array('%name' => $instance['label'])));
     }
   }
 
