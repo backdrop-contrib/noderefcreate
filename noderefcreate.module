@@ -85,8 +85,8 @@ function noderefcreate_field_widget_form(&$form, &$form_state, $field, $instance
  * and we just create new node in case no node with provided title exists.
  */
 function noderefcreate_autocomplete_validate($element, &$form_state, $form) {
-  $field = $form_state['field'][$element['#field_name']][$element['#language']]['field'];
-  $instance = $form_state['field'][$element['#field_name']][$element['#language']]['instance'];
+  $field = field_widget_field($element, $form_state);
+  $instance = field_widget_instance($element, $form_state);
 
   $value = $element['#value'];
   $nid = NULL;
