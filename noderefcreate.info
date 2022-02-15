@@ -1,9 +1,9 @@
 name = noderefcreate
 description = create a node when the reference doesnt exist
 package = Fields
-core = 7.x
+backdrop = 1.x
+type = module
 dependencies[] = field
 dependencies[] = references
 dependencies[] = node_reference
 
-files[] = noderefcreate.module

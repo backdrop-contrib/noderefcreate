@@ -16,7 +16,7 @@ function noderefcreate_field_widget_info() {
       'label' => t('Autocomplete text field with create'),
       'description' => t('Display the list of referenceable nodes as a textfield with autocomplete behaviour, if the node doesn´t exist, create it.'),
       'field types' => array('node_reference'),
-      'settings'    => array(
+      'settings' => array(
         'autocomplete_match' => 'contains',
         'size' => 60,
         'autocomplete_path' => 'node_reference/autocomplete',
@@ -26,7 +26,7 @@ function noderefcreate_field_widget_info() {
 }
 
 /**
- * Implements of hook_field_widget_settings_form
+ * Implements hook_field_widget_settings_form().
  */
 function noderefcreate_field_widget_settings_form($field, $instance) {
   $widget   = $instance['widget'];
@@ -35,21 +35,21 @@ function noderefcreate_field_widget_settings_form($field, $instance) {
 
   if ($widget['type'] == 'noderefcreate_autocomplete') {
     $form['autocomplete_match'] = array(
-      '#type'             => 'select',
-      '#title'            => t('Autocomplete matching'),
-      '#default_value'    => $settings['autocomplete_match'],
-      '#options'          => array(
-        'starts_with'     => t('Starts with'),
-        'contains'        => t('Contains'),
+      '#type' => 'select',
+      '#title' => t('Autocomplete matching'),
+      '#default_value' => $settings['autocomplete_match'],
+      '#options' => array(
+        'starts_with' => t('Starts with'),
+        'contains' => t('Contains'),
       ),
-      '#description'      => t('Select the method used to collect autocomplete suggestions. Note that <em>Contains</em> can cause performance issues on sites with thousands of nodes.'),
+      '#description' => t('Select the method used to collect autocomplete suggestions. Note that <em>Contains</em> can cause performance issues on sites with thousands of nodes.'),
     );
     $form['size'] = array(
-      '#type'             => 'textfield',
-      '#title'            => t('Size of textfield'),
-      '#default_value'    => $settings['size'],
+      '#type' => 'textfield',
+      '#title' => t('Size of textfield'),
+      '#default_value' => $settings['size'],
       '#element_validate' => array('_element_validate_integer_positive'),
-      '#required'         => TRUE,
+      '#required' => TRUE,
     );
   }
   return $form;
@@ -85,8 +85,8 @@ function noderefcreate_field_widget_form(&$form, &$form_state, $field, $instance
  * and we just create new node in case no node with provided title exists.
  */
 function noderefcreate_autocomplete_validate($element, &$form_state, $form) {
-  $field = field_widget_field($element, $form_state);
-  $instance = field_widget_instance($element, $form_state);
+  $field = $form_state['field'][$element['#field_name']][$element['#language']]['field'];
+  $instance = $form_state['field'][$element['#field_name']][$element['#language']]['instance'];
 
   $value = $element['#value'];
   $nid = NULL;
@@ -108,8 +108,7 @@ function noderefcreate_autocomplete_validate($element, &$form_state, $form) {
           form_error($element, t('%name: title mismatch. Please check your selection.', array('%name' => $instance['label'])));
         }
       }
-    }
-    else {
+    } else {
       // No explicit nid (the submitted value was not populated by autocomplete
       // selection). Get the nid of a referencable node from the entered title.
       $options = array(
@@ -125,23 +124,25 @@ function noderefcreate_autocomplete_validate($element, &$form_state, $form) {
         // candidates with the same title. ATM, we pick the first
         // matching candidate...
         $nid = key($reference);
-      }
-      else {
-        $newnode = NULL;
+      } else {
+        global $user;
+        $newnode = new Node();
         if (is_array($field['settings']['referenceable_types'])) {
           foreach (array_filter($field['settings']['referenceable_types']) as $related_type) {
             $newnode->type = $related_type;
           }
         }
-        global $user;
+
         $newnode->uid = $user->uid;
         $newnode->title = $value;
-        $newnode->language = $element['#language'];
-        if (module_exists('comment')) {
-          $newnode->comment = variable_get("comment_$newnode->type", COMMENT_NODE_OPEN);
-        }
+        node_object_prepare($newnode);
+        $newnode->language = LANGUAGE_NONE;
+        $newnode->status = 1;
+        $newnode->promote = 0;
+        $newnode->comment = 0;
+
+        $newnode = node_submit($newnode);
         node_save($newnode);
-        $nid = $newnode->nid;
       }
     }
   } else {
@@ -162,4 +163,3 @@ function noderefcreate_autocomplete_validate($element, &$form_state, $form) {
 function noderefcreate_field_widget_error($element, $error, $form, &$form_state) {
   form_error($element['nid'], $error['message']);
 }
-
