@@ -1,5 +1,5 @@
 name = noderefcreate
-description = create a node when the reference doesnt exist
+description = create a node when the reference doesn't exist
 package = Fields
 backdrop = 1.x
 type = module
